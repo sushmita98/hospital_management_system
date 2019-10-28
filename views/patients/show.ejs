@@ -1,0 +1,35 @@
+<%- include ../partials/header %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card  mb-5" style="max-width: 300px;">
+                <img class="card-img-top" ;" src="<%= patient.image %>">
+                <div class="card-body">
+                    <h5 class="card-title"><%= patient.fName %> <%= patient.lName %></h5>
+                    <% if(patient.sex == "Male"){ %>
+                    <p><i class="fa fa-male"></i> <%= patient.sex %>, <%= patient.age %></p>
+                    <% } else { %>
+                    <p><i class="fa fa-female"></i> <%= patient.sex %>, <%= patient.age %></p>
+                    <% } %>
+                    <p><i class="fa fa-map-marker"></i> <%= patient.address %></p>
+                    <p><i class="fa fa-phone"></i> <%= patient.contact %></p>
+                    <div class="text-center">
+                        <a href="/patients/<%= patient._id %>/opd-card" class="btn btn-md btn-dark">Get OPD Card</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="text-center">
+                    <h3>PATIENT RECORD</h3>
+                    <hr class="w-25">
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include ../partials/footer %>

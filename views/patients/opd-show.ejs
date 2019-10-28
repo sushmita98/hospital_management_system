@@ -1,0 +1,53 @@
+<%- include ../partials/header %>
+
+<div class="container w-50">
+    <div class="card pb-4 px-2">
+        <div class="text-center">
+            <h2>OPD Card</h2>
+            <p class="lead">Please show this card to the consultant doctor.</p>
+        </div>
+        <table>
+            <tr>
+                <td rowspan="5">
+                    <div class="text-center">
+                        <img width="200px" src="<%= patient.image %>">
+                    </div>
+                </td>
+                <td class="align-middle">
+                    <span>Name- <strong><%= patient.fName %> <%= patient.lName %></strong> </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-middle">
+                    <span>Age- <%= patient.age %></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-middle">
+                    <span>Sex- <%= patient.sex %></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-middle">
+                    <span>Address- <%= patient.address %></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="align-middle">
+                    <span>Contact- <%= patient.contact %></span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="text-center my-4 d-print-block" style="display: none;"><!--Make separate file-->
+        <h3>Consultant Notes</h3>
+        <hr class="w-25">
+    </div>
+    <div class="text-center my-3 d-print-none">
+        <a href="#" class="btn btn-md btn-dark mb-3" onclick="window.print()">Print Card</a>
+        <br>
+        <a href="/patients">Go to patients page</a>
+    </div>
+</div>
+
+<%- include ../partials/footer %>

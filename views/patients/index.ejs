@@ -1,0 +1,58 @@
+<%- include ../partials/header %>
+
+<div class="container">
+
+    <div class="text-center">
+        <h2>PATIENTS</h2>
+        <hr class="w-25">
+        <a href="/patients/new" class="btn btn-dark">Add New Patient</a>
+        <p class="lead my-4">OR</p>
+    </div>
+
+    <div class="container w-75">
+        <div class="row">
+            <div class="col-md-4">
+                <input class="form-control" name="search_name" type="search" placeholder="Search by name...">
+            </div>
+            <div class="col-md-2">
+                <select name="sex" id="sex" class="custom-select" required>
+                    <option value="" disabled selected>Sex..</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input class="form-control" name="search_contact" type="Number" placeholder="Search by contact...">
+            </div>
+            <div class="col-md-2 text-center">
+                <button class="btn btn-block btn-dark">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <% patients.forEach(function(patient){ %>
+    <div class="card mt-2">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong><%= patient.fName %> <%= patient.lName %></strong>
+                </div>
+                <div class="col-md-3">
+                    <p><%= patient.age %>, <%= patient.sex %></p>
+                </div>
+                <div class="col-md-3">
+                    <p><%= patient.contact %></p>
+                </div>
+                <div class="text-center col-md-3">
+                    <a class="btn btn-info" href="/patients/<%= patient._id %>">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% }); %>
+
+</div>
+
+<%- include ../partials/footer %>
