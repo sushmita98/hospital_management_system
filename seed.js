@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const Doctor = require('./models/doctor');
 const Patient = require('./models/patient');
+const OPDRecord = require('./models/opd_record');
+const IPDRecord = require('./models/ipd_record');
+const Medicine = require('./models/medicine');
+const Test = require('./models/test');
 
 //DOCTORS
 data_doctor = [{
@@ -45,7 +49,6 @@ data_doctor = [{
 }
 ];
 
-
 //PATIENTS
 data_patient = [
     {
@@ -77,34 +80,226 @@ data_patient = [
     }
 ];
 
-function SeedDB()
-{
-    //PATIENT
-    Patient.deleteMany({}, function(err){
-        if(err)
+//OPD RECORD
+data_opd_record = [{
+    visitDate: "29/10/2019",
+    consultant: "Dr. James Wood",
+    complaints: "Cough",
+    history: "",
+    investigation: "",
+    diagnosis: "Common Cold",
+    medicines: "P-650, Cold-Aid",
+    advice: "Stay away from cold drinks.",
+    nextVisit: "29/11/2019"
+}]
+
+//TESTS
+data_tests = [
+    {
+        name: "CBC",
+        cost: 1200
+    },
+    {
+        name: "Blood Sugar",
+        cost: 150
+    },
+    {
+        name: "Lipid Panel",
+        cost: 1500
+    },
+    {
+        name: "Liver Panel",
+        cost: 1000
+    },
+    {
+        name: "TSH",
+        cost: 650
+    },
+    {
+        name: "Haemoglobin",
+        cost: 450
+    },
+    {
+        name: "Urinal Analysis",
+        cost: 850
+    },
+    {
+        name: "X-Ray (Thorax)",
+        cost: 450
+    },
+    {
+        name: "X-Ray (Lower)",
+        cost: 450,
+    },
+    {
+        name: "X-Ray (Iso)",
+        cost: 500,
+    },
+    {
+        name: "CT Scan",
+        cost: 2000
+    },
+    {
+        name: "MRI",
+        cost: 2100
+    }
+]
+
+//MEDICINES
+data_meds = [
+    {
+        name: "Rantac-D",
+        cost: 45
+    },
+    {
+        name: "Pantocid-L",
+        cost: 95
+    },
+    {
+        name: "Pan-40",
+        cost: 80
+    },
+    {
+        name: "Cold-aid",
+        cost: 25
+    },
+    {
+        name: "Calpol",
+        cost: 60
+    },
+    {
+        name: "SN-15",
+        cost: 75
+    },
+    {
+        name: "Zyloric",
+        cost: 100
+    },
+    {
+        name: "Thyronorm",
+        cost: 120
+    },
+    {
+        name: "Metrogyl",
+        cost: 250
+    },
+    {
+        name: "Health Ok",
+        cost: 100
+    },
+    {
+        name: "E-Cod",
+        cost: 300
+    },
+    {
+        name: "Aziwok",
+        cost: 150
+    },
+    {
+        name: "Streptomycin",
+        cost: 250
+    }
+]
+
+//IPD RECORD
+data_ipd_record = [{
+    inDate: new Date(2019, 8, 9),
+    outDate: new Date(2019, 8, 12),
+    diet: "Apple, Oats, Whipped cream",
+    consultantVisits: [{
+        name: "Dr. James Wood",
+        visitDate: "10/8/2019"
+    }],
+    medicines: ['Rantac-D'],
+    tests: ['TSH']
+}]
+
+function SeedDB() {
+    //ADD MEDICINES
+    Medicine.deleteMany({}, function (err) {
+        if (err)
             console.log(err);
-        else
-        {
-            data_patient.forEach(function(seed){
-                Patient.create(seed, function(err, patient){
-                    if(err)
+        else {
+            data_meds.forEach(function (seed) {
+                Medicine.create(seed, function (err, medicine) {
+                    if (err)
                         console.log(err);
-                    else
+                });
+            })
+        }
+    });
+
+    //ADD TEST
+    Test.deleteMany({}, function (err) {
+        if (err)
+            console.log(err);
+        else {
+            data_tests.forEach(function (seed) {
+                Test.create(seed, function (err, test) {
+                    if (err)
+                        console.log(err);
+                });
+            })
+
+        }
+    });
+
+    //ADD PATIENT
+    Patient.deleteMany({}, function (err) {
+        if (err)
+            console.log(err);
+        else {
+
+            data_patient.forEach(function (seed) {
+                Patient.create(seed, function (err, patient) {
+                    if (err)
+                        console.log(err);
+                    else {
+                        //CLEAR OPD RECORDS
+                        OPDRecord.deleteMany({});
+
+                        //CLEAR IPD RECORDS
+                        IPDRecord.deleteMany({});
+
                         console.log("Patient added!");
+
+                        //Add OPD Records
+                        data_opd_record.forEach(function (or_seed) {
+                            OPDRecord.create(or_seed, function (err, opdRecord) {
+                                if (err) {
+                                    console.log(err);
+                                }
+                                else {
+                                    patient.opd_records.push(opdRecord);
+                                }
+                            });
+                        });
+
+                        //Add IPD Records
+                        data_ipd_record.forEach(function (ir_seed) {
+                            IPDRecord.create(ir_seed, function (err, ipdRecord) {
+                                if (err)
+                                    console.log(err);
+                                else {
+                                    patient.ipd_records.push(ipdRecord);
+                                    patient.save();
+                                }
+                            })
+                        })
+                    }
                 })
             })
         }
     })
 
-    //DOCTOR
-    Doctor.deleteMany({}, function(err){
-        if(err)
+    //ADD DOCTOR
+    Doctor.deleteMany({}, function (err) {
+        if (err)
             console.log(err);
-        else
-        {
-            data_doctor.forEach(function(seed){
-                Doctor.create(seed, function(err, doctor){
-                    if(err)
+        else {
+            data_doctor.forEach(function (seed) {
+                Doctor.create(seed, function (err, doctor) {
+                    if (err)
                         console.log(err);
                     else
                         console.log("Doctor added!");

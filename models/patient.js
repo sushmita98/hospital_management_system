@@ -8,10 +8,14 @@ const patientSchema = mongoose.Schema({
     sex: String,
     address: String,
     contact: Number,
-    records: [{
+    opd_records: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'records'
-    }]
+        ref: 'opd_records'
+    }],
+    ipd_records: [{
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'ipd_records'
+    }],
 });
 
 module.exports = mongoose.model('patients',patientSchema);

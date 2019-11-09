@@ -1,0 +1,15 @@
+#add_record_opd {
+    position: absolute;
+    right: 10px;
+    top: 15px;
+}
+
+#add_record_ipd {
+    position: absolute;
+    right: 10px;
+    top: 15px;
+}
+
+.d-print-block{
+    display: none;
+}

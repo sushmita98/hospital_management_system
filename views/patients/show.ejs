@@ -2,9 +2,11 @@
 
 <div class="container">
     <div class="row">
+
+        <!--Patient Info.-->
         <div class="col-md-4">
-            <div class="card  mb-5" style="max-width: 300px;">
-                <img class="card-img-top" ;" src="<%= patient.image %>">
+            <div class="card mb-5" style="max-width: 300px;">
+                <img class="card-img-top" src="<%= patient.image %>">
                 <div class="card-body">
                     <h5 class="card-title"><%= patient.fName %> <%= patient.lName %></h5>
                     <% if(patient.sex == "Male"){ %>
@@ -20,13 +22,130 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <div class="card">
+        <!--Patient Records (OPD)-->
+        <div class="col-md-8 mb-4">
+            <div class="card py-3 mb-3">
                 <div class="text-center">
-                    <h3>PATIENT RECORD</h3>
-                    <hr class="w-25">
+                    <h3>PATIENT RECORD (OPD)</h3>
+                    <hr class="w-50 mt-2">
                 </div>
+                <a id="add_record_opd" class="text-dark" href="/patients/<%= patient._id %>/opd-records/new"><i
+                        class="fa fa-plus-circle fa-2x"></i></a>
+                <div class="card-body pb-1">
+                    <div class="container w-75">
+                        <% if(patient.opd_records.length == 0) { %>
+                        <p class="text-center lead">No Records Found</p>
+                        <% } else { %>
+                        <% patient.opd_records.forEach(function(record, i, arr){ %>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Visit Date: </strong><%= record.visitDate %></p>
+                            </div>
+                            <% if(record.nextVisit != ""){ %>
+                            <div class="col-md-6">
+                                <p><strong>Next Visit: </strong><%= record.nextVisit %></p>
+                            </div>
+                            <% } %>
+                            <% if(record.consultant != ""){ %>
+                            <div class="col-md-12">
+                                <p><strong>Consultant: </strong><%= record.consultant %></p>
+                            </div>
+                            <% } %>
+                            <div class="col-md-12">
+                                <p><strong>Complaints: </strong><%= record.complaints %></p>
+                            </div>
+                            <% if(record.history != ""){ %>
+                            <div class="col-md-12">
+                                <p><strong>History: </strong><%= record.history %></p>
+                            </div>
+                            <% } %>
+                            <div class="col-md-12">
+                                <p><strong>Diagnosis: </strong><%= record.diagnosis %></p>
+                            </div>
+                            <% if(record.investigation != ""){ %>
+                            <div class="col-md-12">
+                                <p><strong>Investigation: </strong><%= record.investigation %></p>
+                            </div>
+                            <% } %>
+                            <% if(record.advice != ""){ %>
+                            <div class="col-md-12">
+                                <p><strong>Advice: </strong><%= record.advice %></p>
+                            </div>
+                            <% } %>
+                            <% if(i != arr.length-1) { %>
+                            <hr class="w-75">
+                            <% } %>
+                        </div>
+                        <% })} %>
+                    </div>
+                </div>
+            </div>
 
+            <!--IPD Records Show-->
+            <div class="card py-3">
+                <div class="text-center">
+                    <h3>PATIENT RECORD (IPD)</h3>
+                    <hr class="w-50 mt-2">
+                </div>
+                <a id="add_record_ipd" class="text-dark" href="/patients/<%= patient._id %>/ipd-records/new"><i
+                        class="fa fa-plus-circle fa-2x"></i></a>
+                <div class="card-body pb-1">
+                    <div class="container w-75">
+                        <% if(patient.ipd_records.length == 0) { %>
+                        <p class="text-center lead">No Records Found</p>
+                        <% } else { %>
+                        <% patient.ipd_records.forEach(function(record, i, arr){ %>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>In Date: </strong><%= record.inDate.toDateString() %></p>
+                            </div>
+                            <% if(record.outDate != ""){ %>
+                            <div class="col-md-6">
+                                <p><strong>Out Date: </strong><%= record.outDate.toDateString() %></p>
+                            </div>
+                            <% } %>
+                            <% if(record.medicines.length != 0){ %>
+                            <div class="col-md-12">
+                                <strong>Medicines: </strong>
+                                <ul>
+                                    <% record.medicines.forEach(function(med){ %>
+                                    <li><%= med %></li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+                            <% } %>
+                            <% if(record.tests.length != 0){ %>
+                            <div class="col-md-12">
+                                <strong>Tests: </strong>
+                                <ul>
+                                    <% record.tests.forEach(function(test){ %>
+                                    <li><%= test %></li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+                            <% } %>
+                            <% if(record.consultantVisits.length != 0){ %>
+                            <div class="col-md-12">
+                                <strong>Consultant Visits: </strong>
+                                <ul>
+                                    <% record.consultantVisits.forEach(function(con){ %>
+                                    <li><%= con.name %> (<%= con.visitDate %>)</li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+                            <% } %>
+                            <% if(record.diet != ""){ %>
+                            <div class="col-md-12">
+                                <p><strong>Diet: </strong><%= record.diet %></p>
+                            </div>
+                            <% } %>
+                            <% if(i != arr.length-1) { %>
+                            <hr class="w-75">
+                            <% } %>
+                        </div>
+                        <% })} %>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

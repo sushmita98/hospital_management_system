@@ -1,0 +1,59 @@
+<%- include ../partials/header %>
+
+<div class="container w-50 mb-5">
+    <div class="py-5 text-center">
+        <img class="mb-4" src="/images/record-entry.png" width="72">
+        <h2>OPD Record Entry</h2>
+        <p class="lead">Fill in the details as mentioned in the OPD card. For multiple entries, enter values separated
+            by comma.</p>
+    </div>
+    <form action="/patients/<%=patient._id%>/opd-records" method="POST">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="consultant">Consultant<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="consultant" name="opd_record[consultant]" required>
+            </div>
+            <div class="col-md-12 mb-3">
+                <label for="complaints">Complaints<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="complaints" name="opd_record[complaints]" required>
+            </div>
+            <div class="col-md-12 mb-3">
+                <label for="history">History</label>
+                <input type="text" class="form-control" id="history" name="opd_record[history]">
+            </div>
+            <div class="col-md-12 mb-3">
+                <label for="diagnosis">Diagnosis<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="diagnosis" name="opd_record[diagnosis]" required>
+            </div>
+            <div class="col-md-12 mb-3">
+                <label for="investigation">Investigation</label>
+                <input type="text" class="form-control" id="investigation" name="opd_record[investigation]">
+            </div>
+            <div class="col-md-12 mb-3">
+                <label for="medicines">Medicines</label>
+                <input type="text" class="form-control" id="medicines" name="opd_record[medicines]">
+            </div>
+            <div class="col-md-12 mb-3">
+                <label for="advice">Advice</label>
+                <input type="text" class="form-control" id="advice" name="opd_record[advice]">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="visit-date">Visit Date<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="visit-date" name="opd_record[visitDate]"
+                    placeholder="DD/MM/YYYY" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="next-visit">Next Visit</label>
+                <input type="text" class="form-control" id="next-visit" name="opd_record[nextVisit]"
+                    placeholder="DD/MM/YYYY">
+            </div>
+            <div class="col-md-12">
+                <span><span class="text-danger">*</span>Required Field</span>
+            </div>
+        </div>
+        <hr class="mt-4">
+        <button class="btn btn-dark btn-lg form-control">Submit Record</button>
+    </form>
+</div>
+
+<%- include ../partials/footer %>

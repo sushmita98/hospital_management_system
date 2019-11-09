@@ -1,8 +1,12 @@
 const express = require('express'),
-    mongoose = require('mongoose');
-bodyParser = require('body-parser');
-Doctor = require("./models/doctor");
-Patient = require("./models/patient");
+    mongoose = require('mongoose'),
+bodyParser = require('body-parser'),
+Doctor = require("./models/doctor"),
+Patient = require("./models/patient"),
+Medicine = require("./models/medicine"),
+Test = require("./models/test"),
+OPDRecord = require("./models/opd_record"),
+IPDRecord = require("./models/ipd_record"),
 SeedDB = require("./seed");
 
 const app = express();
@@ -67,11 +71,11 @@ app.post("/patients", function (req, res) {
 
 //SHOW
 app.get("/patients/:id", function (req, res) {
-    Patient.findById(req.params.id, function (err, patient) {
+    Patient.findById(req.params.id).populate('opd_records').populate('ipd_records').exec(function (err, patient) {
         if (err)
             console.log(err);
         else
-            res.render("patients/show", { patient: patient });
+            res.render("patients/show", { patient: patient});
     })
 });
 
@@ -84,6 +88,96 @@ app.get("/patients/:id/opd-card", function (req, res) {
             res.render("patients/opd-show", { patient: patient });
     })
 });
+
+//==========
+//OPD RECORD
+//==========
+
+//New
+app.get("/patients/:id/opd-records/new", function(req, res){
+    Patient.findById(req.params.id, function (err, patient) {
+        if (err)
+            console.log(err);
+        else
+            res.render("opd_records/new", { patient: patient });
+    })
+});
+
+//CREATE
+app.post("/patients/:id/opd-records", function(req, res){
+    Patient.findById(req.params.id, function(err, patient){
+        if(err)
+            console.log(err);
+        else
+        {
+            OPDRecord.create(req.body.opd_record, function(err, record){
+                if(err)
+                    console.log(err);
+                else
+                {
+                    patient.opd_records.push(record);
+                    patient.save();
+                    res.redirect('/patients/' + req.params.id);
+                }
+            });
+        }
+    })
+});
+
+//==========
+//IPD RECORD
+//==========
+
+//NEW
+app.get("/patients/:id/ipd-records/new", function(req, res){
+    Patient.findById(req.params.id, function (err, patient) {
+        if (err)
+            console.log(err);
+        else
+        {
+            Medicine.find({}, function(err, medicines){
+                if(err)
+                    console.log(err);
+                    else
+                    {
+                        Test.find({}, function(err, tests){
+                            if(err)
+                                console.log(err);
+                            else
+                            {
+                                res.render("ipd_records/new", { patient: patient, medicines: medicines, tests: tests });
+                            }
+                        })
+                    }
+            })
+        }
+    })
+});
+
+//CREATE
+app.post("/patients/:id/ipd-records", function(req, res){
+
+    Patient.findById(req.params.id, function(err, patient){
+        if(err)
+            console.log(err);
+        else
+        {
+            console.log(req.body.ipd_record);
+
+            IPDRecord.create(req.body.ipd_record, function(err, record){
+                if(err)
+                    console.log(err);
+                else
+                {
+                    patient.ipd_records.push(record);
+                    patient.save();
+                    res.redirect('/patients/' + req.params.id);
+                }
+            });
+        }
+    })
+});
+
 
 //=======
 //DOCTORS

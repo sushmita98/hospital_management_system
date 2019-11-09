@@ -1,0 +1,95 @@
+<%- include ../partials/header %>
+
+<div class="container w-50 mb-5">
+    <div class="py-5 text-center">
+        <img class="mb-4" src="/images/record-entry.png" width="72">
+        <h2>IPD Record Entry</h2>
+        <p class="lead">Fill in the indoor details on every new event. Add a new section for each entry.</p>
+    </div>
+    <div class="row">
+        <div id="addMed" class="col-md-4 text-center">
+            <button class="btn btn-dark"><i class="fa fa-plus"></i> Medicine</button>
+        </div>
+        <div id="addCon" class="col-md-4 text-center">
+            <button class="btn btn-dark"><i class="fa fa-plus"></i> Consultant Visit</button>
+        </div>
+        <div id="addTest" class="col-md-4 text-center">
+            <button class="btn btn-dark"><i class="fa fa-plus"></i> Lab Test</button>
+        </div>
+    </div>
+    <form action="/patients/<%=patient._id%>/ipd-records" method="POST">
+        <hr class="mt-4">
+        <div class="row my-3">
+            <div class="col-md-6">
+                <label for="in-date">In Date</label>
+                <input type="date" class="form-control" id="in-date" name="ipd_record[inDate]" placeholder="DD/MM/YY" required>
+            </div>
+            <div class="col-md-6">
+                <label for="out-date">Out Date</label>
+                <input type="date" class="form-control" id="out-date" name="ipd_record[outDate]" placeholder="DD/MM/YY">
+            </div>
+        </div>
+
+        <!--Medicine Field-->
+        <div class="text-center mb-3">
+            <strong>MEDICNES</strong>
+        </div>
+        <!-- To be added medicine field -->
+        <div class="row" id="meds">
+            <div id="med" class="col-md-12 mb-3">
+                <select name="ipd_record[medicines][]" class="custom-select" required>
+                    <option value="" disabled selected>Choose medicine..</option>
+                    <% medicines.forEach(function(medicine){ %>
+                    <option value="<%= medicine.name %>"><%= medicine.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+        </div>
+
+        <!--Consutant Visit Field-->
+        <div class="text-center mb-3">
+            <strong>CONSULTANT VISITS</strong>
+        </div>
+        <!-- To be added consultant visit field -->
+        <div id="conVis">
+            <div id="con" class="row mb-3">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="ipd_record[consultantVisits][0][name]"
+                        placeholder="Enter consultant name">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="ipd_record[consultantVisits][0][visitDate]"
+                        placeholder="Enter visit date (DD/MM/YY)">
+                </div>
+            </div>
+        </div>
+
+        <!--Lab Test Fields-->
+        <div class="text-center mb-3">
+            <strong>LAB TESTS</strong>
+        </div>
+        <!-- To be added consultant visit field -->
+        <div id="tests" class="row">
+            <div id="test" class="col-md-12 mb-3">
+                <select name="ipd_record[tests][]" class="custom-select" required>
+                    <option value="" disabled selected>Choose test..</option>
+                    <% tests.forEach(function(test){ %>
+                    <option value="<%= test.name %>"><%= test.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-12 my-3">
+                <label for="diet">Diet</label>
+                <input type="text" class="form-control" id="diet" name="ipd_record[diet]"
+                    placeholder="Enter foods seperated by comma.">
+            </div>
+        </div>
+        <hr class="mt-4">
+        <button class="btn btn-dark btn-lg form-control">Submit Record</button>
+    </form>
+</div>
+
+<%- include ../partials/footer %>
