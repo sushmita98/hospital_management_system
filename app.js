@@ -198,6 +198,34 @@ app.get('/doctors/new', function (req, res) {
     res.render("doctors/new");
 });
 
+//CREATE
+app.post("/doctors", function (req, res) {
+	
+	var newDoctor = {
+			fName: req.body.fName,
+		    lName: req.body.lName,
+		    image: req.body.image,
+		    age: req.body.age,
+		    sex: req.body.sex,
+		    specialization: req.body.specialization,
+		    qualification: req.body.qualification,
+		    fees: req.body.fees,
+		    address: req.body.address,
+		    contact: req.body.contact,
+		    in: req.body.in,
+		    out: req.body.out
+	}
+
+    Doctor.create(newDoctor, function (err, doctors) {
+        if (err)
+            console.log(err);
+        else {
+            console.log("doctor added");
+            res.redirect('/doctors');
+        }
+    });
+});
+
 
 //LISTEN
 app.listen(process.env.PORT || 3000, function () {
