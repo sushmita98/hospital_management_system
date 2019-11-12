@@ -431,7 +431,21 @@ app.get("/doctors/:id/edit", function(req, res){
 
 //UPDATE
 app.put("/doctors/:id", function(req, res){
-	Doctor.findByIdAndUpdate(req.params.id, req.body.doctor, function(err, doctor){
+	 var updateDoctor = {
+        fName: req.body.fName,
+        lName: req.body.lName,
+        image: req.body.image,
+        age: req.body.age,
+        sex: req.body.sex,
+        specialization: req.body.specialization,
+        qualification: req.body.qualification,
+        fees: req.body.fees,
+        address: req.body.address,
+        contact: req.body.contact,
+        in: req.body.in,
+        out: req.body.out
+	 }
+	Doctor.findByIdAndUpdate(req.params.id, updateDoctor, function(err, doctor){
 			if(err){
 				res.redirect("/doctors");
 			}else{
