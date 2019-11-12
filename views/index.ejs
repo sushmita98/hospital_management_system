@@ -1,0 +1,27 @@
+<%- include ../partials/header %>
+
+<div class="container">
+    <h1 style="text-align: center;">DOCTORS</h1>
+    <div class="row mt-3">
+        <% doctors.forEach(function(doctor){ %>
+        <div class="col-md-3 col-sm-6 mt-3">
+            <div class="card">
+                <img class="card-img-top" src="<%= doctor.image %>">
+                <div class="card-body">
+                    <div class="text-center">
+                        <h5 class="card-title">Dr. <%= doctor.fName %> <%= doctor.lName %></h5>
+                        <p class="card-text"><%= doctor.specialization %><em> (<%= doctor.qualification %>)</em></p>
+                        <p class="card-text">Fees: Rs.<%= doctor.fees %></p>
+                        <!--AFTER AUTH-->
+                       <!-- <a href="/patients/add patient id/appointments/<%= doctor._id %>/new" class="btn btn-dark">Get Appointment</a>-->
+                        <a href="/doctors/<%= doctor._id %>/edit" class="btn btn-outline-dark"><i class="fa fa-pencil-square-o"></i> Edit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% }); %>
+    </div>
+</div>
+
+<%- include ../partials/footer %>

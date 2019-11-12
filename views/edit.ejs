@@ -1,0 +1,96 @@
+<%- include ../partials/header %>
+
+<div class="container w-50 mb-5">
+    <div class="py-5 text-center">
+        <img class="mb-4" src="/images/doctor-reg.png" width="72">
+        <h2>Edit Details</h2>
+        <p class="lead">Edit in the doctor details below. All the mentioned details are required.</p>
+    </div>
+    <form action="/doctors/<%= doctor._id %>?_method=PUT" method="POST">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="first-name">First Name</label>
+                <input type="text" class="form-control" id="first-name" name="fName" required>
+            </div>
+            <div class="col-md-6">
+                <label for="last-name">Last Name</label>
+                <input type="text" class="form-control" id="last-name" name="lName" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="image">Image URL</label>
+                <input type="Text" class="form-control" id="image" name="image"" required>
+            </div>
+            <div class="col-md-2">
+                <label for="age">Age</label>
+                <input type="number" class="form-control" id="age" name="age" required min="0">
+            </div>
+            <div class="col-md-4">
+                <label for="sex">Sex</label>
+                <select name="sex" id="sex" class="custom-select" required>
+                    <option value="" disabled selected>Choose..</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="specialization">Specialization</label>
+                <select name="specialization" id="specialization" class="custom-select" required>
+                    <option value="" disabled selected>Choose..</option>
+                    <option value="General Physician">General Physician</option>
+                    <option value="Surgeon">Surgeon</option>
+                    <option value="Gynecologist">Gynecologist</option>
+                    <option value="Cardiologist">Cardiologist</option>
+                    <option value="Psychiatrist">Psychiatrist</option>
+                    <option value="Dermatologist">Dermatologist</option>
+                    <option value="Endocrinologist">Endocrinologist</option>
+                    <option value="Gastroenterologist">Gastroenterologist</option>
+                    <option value="Neurologist">Neurologist</option>
+                    <option value="Oncologist">Oncologist</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="qualification">Qualification</label>
+                <select name="qualification" id="qualification" class="custom-select" required>
+                    <option value="" disabled selected>Choose..</option>
+                    <option value="M.B.B.S">M.B.B.S</option>
+                    <option value="M.D">M.D</option>
+                    <option value="M.S">M.S</option>
+                    <option value="D.N.B">D.N.B</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="fees">Fees</label>
+                <input type="Number" class="form-control" id="fees" name="fees" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="address">Residential Address</label>
+                <input type="Text" class="form-control" id="address" name="address" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <label for="contact">Contact</label>
+                <input type="Number" class="form-control" id="contact" name="contact" required minlength="10"
+                    maxlength="10">
+            </div>
+            <div class="col-md-4">
+                <label for="in">Timing (in)</label>
+                <input type="text" class="form-control" id="in" name="in" placeholder="HH:MM AM/PM" required>
+            </div>
+            <div class="col-md-4">
+                <label for="out">Timing(out)</label>
+                <input type="time" class="form-control" id="out" name="out" placeholder="HH:MM AM/PM" required>
+            </div>
+        </div>
+        <hr class="mt-4">
+        	<button class="btn btn-dark btn-lg form-control">Update Doctor</button>
+    </form>
+</div>
+
+<%- include ../partials/footer %>
