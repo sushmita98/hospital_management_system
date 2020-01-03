@@ -12,9 +12,16 @@ const doctorSchema = mongoose.Schema({
     address: String, 
     contact: Number, 
     in: String,
+    appointments: [
+        {
+            patient: String,
+            onDate: Date,
+        }
+    ],
     out: String
 });
 
 const Doctor = mongoose.model('doctors', doctorSchema);
 
 module.exports = Doctor;
+© 2020 GitHub, Inc.
