@@ -1,13 +1,18 @@
 const express = require('express'),
     mongoose = require('mongoose'),
     bodyParser = require('body-parser'),
-    methodOverride = require("method-override"),
     Doctor = require("./models/doctor"),
     Patient = require("./models/patient"),
     Medicine = require("./models/medicine"),
     Test = require("./models/test"),
     OPDRecord = require("./models/opd_record"),
     IPDRecord = require("./models/ipd_record"),
+    passport = require("passport"),
+    LocalStrategy = require("passport-local"),
+    methodOverride = require("method-override");
+    passportLocalMongoose = require("passport-local-mongoose"),
+    expressSession = require("express-session"),
+    User = require("./models/user"),
     SeedDB = require("./seed");
 
 const app = express();
@@ -16,26 +21,144 @@ app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
+
+//EXPRESS_SESSION
+app.use(expressSession({ secret: "Hello World!", resave: false, saveUninitialized: false }));
+
+//PASSPORT 
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//CUSTOM MIDDLEWARE FOR LOGIN CHECK
+app.use(function (req, res, next) {
+    res.locals.currentUser = req.user;
+    next();
+});
+
 app.use(methodOverride("_method"));
 
 //SEED
-SeedDB();
+//SeedDB();
 
 //MONGOOSE
-mongoose.connect('mongodb://localhost:27017/hospital_management', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://admin-anshu:rechargeit@cluster-software-m3p11.mongodb.net/hospital_management', { useNewUrlParser: true, useUnifiedTopology: true });
 
 //ROUTES
-app.get('/', function (req, res) {
+app.get('/', isLogged, function (req, res) {
     res.render("reception");
 });
 
+//====
+//AUTH
+//====
+
+//REGISTER GET
+app.get('/register', function (req, res) {
+    res.render("auth/register");
+});
+
+//REGISTER POST
+app.post('/register', function (req, res) {
+    User.register(new User({ username: req.body.username }), req.body.password, function (err, user) {
+        if (err) {
+            console.log(err);
+            return res.redirect("/register");
+        }
+        passport.authenticate('local')(req, res, function () {
+            res.redirect("/");
+        });
+    });
+});
+
+//LOGIN GET
+app.get('/login', function (req, res) {
+    res.render("auth/login");
+});
+
+//LOGOUT POST
+app.post('/login', passport.authenticate("local", {
+    successRedirect: '/',
+    failureRedirect: '/login'
+}), function (req, res) { });
+
+//LOGOUT GET
+app.get("/logout", function (req, res) {
+    req.logout();
+    res.redirect('/login');
+});
+
+//UNAUTHORIZED
+app.get('/unauthorized', function (req, res) {
+    res.render("auth/unauthorized");
+})
+
+//Middleware functions
+function isAdmin(req, res, next) {
+    if (req.isAuthenticated()) {
+        if (req.user.username == "admin")
+            return next();
+        else {
+            res.redirect('/unauthorized');
+        }
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+
+function isNursing(req, res, next) {
+    if (req.isAuthenticated()) {
+        if (req.user.username == "nursing")
+            return next();
+        else {
+            res.redirect('/unauthorized');
+        }
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+
+function isLogged(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect('/login');
+}
+
+function isReception(req, res, next) {
+    if (req.isAuthenticated()) {
+        if (req.user.username == "reception")
+            return next();
+        res.redirect('/unauthorized');
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+
+function isReceptionOrAdmin(req, res, next) {
+    if (req.isAuthenticated()) {
+        if (req.user.username == "reception" || req.user.username == "admin")
+            return next();
+        else {
+            res.redirect('/unauthorized');
+        }
+    }
+    else
+        res.redirect('/login');
+}
 
 //========
 //PATIENTS
 //========
 
 //INDEX
-app.get("/patients", function (req, res) {
+app.get("/patients", isLogged, function (req, res) {
     Patient.find({}, function (err, patients) {
         if (err)
             console.log(err);
@@ -45,12 +168,12 @@ app.get("/patients", function (req, res) {
 });
 
 //NEW
-app.get("/patients/new", function (req, res) {
+app.get("/patients/new", isReceptionOrAdmin, function (req, res) {
     res.render("patients/new");
 });
 
 //CREATE
-app.post("/patients", function (req, res) {
+app.post("/patients", isLogged, function (req, res) {
     var newPatient = {
         fName: req.body.fName,
         lName: req.body.lName,
@@ -72,7 +195,7 @@ app.post("/patients", function (req, res) {
 });
 
 //SHOW
-app.get("/patients/:id", function (req, res) {
+app.get("/patients/:id", isLogged, function (req, res) {
     Patient.findById(req.params.id).populate('opd_records').populate('ipd_records').exec(function (err, patient) {
         if (err)
             console.log(err);
@@ -82,7 +205,7 @@ app.get("/patients/:id", function (req, res) {
 });
 
 //SEARCH
-app.post("/patients/search", function (req, res) {
+app.post("/patients/search", isLogged, function (req, res) {
 
     var index = req.body.search_name.indexOf(" ");
     var f = req.body.search_name.substr(0, index);
@@ -107,7 +230,7 @@ app.post("/patients/search", function (req, res) {
 });
 
 //DOCTOR LIST (APPOINTMENTS)
-app.get("/patients/:id/appointments/", function (req, res) {
+app.get("/patients/:id/appointments/", isReception, function (req, res) {
     Doctor.find({}, function (err, doctors) {
         if (err)
             console.log(err);
@@ -116,30 +239,29 @@ app.get("/patients/:id/appointments/", function (req, res) {
                 if (err)
                     console.log(err);
                 else
-                    res.render("doctors/index", { doctors: doctors, patient: patient});
+                    res.render("doctors/index", { doctors: doctors, patient: patient });
             })
     });
 })
 
 //NEW APPOINTMENT
-app.get("/patients/:id/appointments/:id2/new", function(req, res){
-    Doctor.findById(req.params.id2, function(err, doctor){
-        if(err)
+app.get("/patients/:id/appointments/:id2/new", isReception, function (req, res) {
+    Doctor.findById(req.params.id2, function (err, doctor) {
+        if (err)
             console.log(err);
-        else
-        {
-            Patient.findById(req.params.id, function(err, patient){
-                if(err)
+        else {
+            Patient.findById(req.params.id, function (err, patient) {
+                if (err)
                     console.log(err);
                 else
-                    res.render("doctors/appointment", {doctor: doctor, patient: patient});
+                    res.render("doctors/appointment", { doctor: doctor, patient: patient });
             })
         }
     })
 })
 
 //CREATE APPOINTMENT
-app.post("/patients/:id/appointments/:id2", function (req, res) {
+app.post("/patients/:id/appointments/:id2", isReception, function (req, res) {
     Doctor.findById(req.params.id2, function (err, doctor) {
         if (err)
             console.log(err);
@@ -147,8 +269,7 @@ app.post("/patients/:id/appointments/:id2", function (req, res) {
             Patient.findById(req.params.id, function (err, patient) {
                 if (err)
                     console.log(err);
-                else
-                {
+                else {
                     doctor.appointments.push(req.body.appointment);
                     doctor.save();
                     patient.appointments.push({
@@ -164,7 +285,7 @@ app.post("/patients/:id/appointments/:id2", function (req, res) {
 
 
 //OPD-CARD SHOW
-app.get("/patients/:id/opd-card", function (req, res) {
+app.get("/patients/:id/opd-card", isReceptionOrAdmin, function (req, res) {
     Patient.findById(req.params.id, function (err, patient) {
         if (err)
             console.log(err);
@@ -178,7 +299,7 @@ app.get("/patients/:id/opd-card", function (req, res) {
 //==========
 
 //New
-app.get("/patients/:id/opd-records/new", function (req, res) {
+app.get("/patients/:id/opd-records/new", isReceptionOrAdmin, function (req, res) {
     Patient.findById(req.params.id, function (err, patient) {
         if (err)
             console.log(err);
@@ -196,7 +317,7 @@ app.get("/patients/:id/opd-records/new", function (req, res) {
 });
 
 //CREATE
-app.post("/patients/:id/opd-records", function (req, res) {
+app.post("/patients/:id/opd-records", isReceptionOrAdmin, function (req, res) {
     Patient.findById(req.params.id, function (err, patient) {
         if (err)
             console.log(err);
@@ -225,7 +346,7 @@ app.post("/patients/:id/opd-records", function (req, res) {
 });
 
 //SHOW (BILL FORMAT)
-app.get("/patients/:id/opd-records/:id2/bill", function (req, res) {
+app.get("/patients/:id/opd-records/:id2/bill", isReceptionOrAdmin, function (req, res) {
     OPDRecord.findById(req.params.id2, function (err, record) {
         if (err)
             console.log(err);
@@ -236,7 +357,7 @@ app.get("/patients/:id/opd-records/:id2/bill", function (req, res) {
 })
 
 //EDIT (BILL PAID)
-app.get("/patients/opd-records/:id2/bill", function (req, res) {
+app.get("/patients/opd-records/:id2/bill", isReceptionOrAdmin, function (req, res) {
     OPDRecord.findById(req.params.id2, function (err, record) {
         if (err)
             console.log(err);
@@ -253,7 +374,7 @@ app.get("/patients/opd-records/:id2/bill", function (req, res) {
 //==========
 
 //NEW
-app.get("/patients/:id/ipd-records/new", function (req, res) {
+app.get("/patients/:id/ipd-records/new", isNursing, function (req, res) {
     Patient.findById(req.params.id, function (err, patient) {
         if (err)
             console.log(err);
@@ -276,7 +397,7 @@ app.get("/patients/:id/ipd-records/new", function (req, res) {
 });
 
 //CREATE
-app.post("/patients/:id/ipd-records", function (req, res) {
+app.post("/patients/:id/ipd-records", isNursing, function (req, res) {
 
     Patient.findById(req.params.id, function (err, patient) {
         if (err)
@@ -333,7 +454,7 @@ app.post("/patients/:id/ipd-records", function (req, res) {
 });
 
 //SHOW (BILL FORMAT)
-app.get("/patients/:id/ipd-records/:id2/bill", function (req, res) {
+app.get("/patients/:id/ipd-records/:id2/bill", isReceptionOrAdmin, function (req, res) {
     IPDRecord.findById(req.params.id2, function (err, record) {
         if (err)
             console.log(err);
@@ -344,7 +465,7 @@ app.get("/patients/:id/ipd-records/:id2/bill", function (req, res) {
 })
 
 //EDIT (BILL PAID)
-app.get("/patients/ipd-records/:id2/bill", function (req, res) {
+app.get("/patients/ipd-records/:id2/bill", isReceptionOrAdmin, function (req, res) {
     IPDRecord.findById(req.params.id2, function (err, record) {
         if (err)
             console.log(err);
@@ -361,7 +482,7 @@ app.get("/patients/ipd-records/:id2/bill", function (req, res) {
 //=======
 
 //INDEX
-app.get('/doctors', function (req, res) {
+app.get('/doctors', isAdmin, function (req, res) {
     Doctor.find({}, function (err, doctors) {
         if (err)
             console.log(err);
@@ -371,12 +492,12 @@ app.get('/doctors', function (req, res) {
 });
 
 //NEW
-app.get('/doctors/new', function (req, res) {
+app.get('/doctors/new', isAdmin, function (req, res) {
     res.render("doctors/new");
 });
 
 //CREATE
-app.post("/doctors", function (req, res) {
+app.post("/doctors", isAdmin, function (req, res) {
 
     var newDoctor = {
         fName: req.body.fName,
@@ -393,7 +514,7 @@ app.post("/doctors", function (req, res) {
         out: req.body.out
     }
 
-    Doctor.create(newDoctor, function (err, doctor) {
+    Doctor.create(newDoctor, function (err, doctors) {
         if (err)
             console.log(err);
         else {
@@ -403,35 +524,19 @@ app.post("/doctors", function (req, res) {
     });
 });
 
-//SHOW
-app.get("/doctors/:id", function (req, res) {
-	
-	  Doctor.findById(req.params.id, function (err, doctor) {
-        if (err){
-            console.log(err);
-        }
-        else{
-        	console.log(doctor);
-            res.render("doctors/show", { doctor: doctor});
-        }
-    });
-});
-
 //EDIT
-app.get("/doctors/:id/edit", function(req, res){
-	Doctor.findById(req.params.id, function(err, doctor){
-			if(err){
-				res.redirect("/doctors");
-				console.log(err);
-			}else{
-				res.render("doctors/edit", {doctor: doctor});
-			}
-	});
-});
+app.get('/doctors/:id/edit', isAdmin, function(req, res){
+    Doctor.findById(req.params.id, function(err, doctor){
+        if(err)
+            console.log(err);
+        else
+            res.render("doctors/edit", {doctor: doctor});
+    })
+})
 
 //UPDATE
-app.put("/doctors/:id", function(req, res){
-	 var updateDoctor = {
+app.put('/doctors/:id', function(req, res){
+    Doctor.findByIdAndUpdate(req.params.id, {
         fName: req.body.fName,
         lName: req.body.lName,
         image: req.body.image,
@@ -444,15 +549,36 @@ app.put("/doctors/:id", function(req, res){
         contact: req.body.contact,
         in: req.body.in,
         out: req.body.out
-	 }
-	Doctor.findByIdAndUpdate(req.params.id, updateDoctor, function(err, doctor){
-			if(err){
-				res.redirect("/doctors");
-			}else{
-				console.log(doctor);
-				res.redirect("/doctors/" + doctor._id);
-			}
-	});
+    }, function(err, updatedDoctor){
+        if(err)
+        {
+            res.redirect('/doctors');
+        }
+        else
+        {
+            res.redirect('/doctors');
+        }
+    })
+})
+
+//DOCTOR SEARCH
+app.post("/doctors/search", isLogged, function (req, res) {
+    Doctor.find({ specialization: req.body.search_spec }, function (err, doctors) {
+        if (err)
+            console.log(err);
+        else
+        if (req.body.patientId) {
+            Patient.findById(req.body.patientId, function (err, patient) {
+                if (err)
+                    console.log(err);
+                else {
+                    res.render("doctors/index", { doctors: doctors, patient: patient });
+                }
+            })
+        }
+        else
+            res.render("doctors/index", { doctors: doctors });
+    });
 });
 
 //LISTEN
